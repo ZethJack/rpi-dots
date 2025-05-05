@@ -19,8 +19,8 @@ alias yta-ogg='yt -x -f bestaudio/best --audio-format ogg'
 alias tat='tmux a || tmux'
 alias nhhs='nh home switch'
 alias mkd='mkdir -pv'
-# alias cdd='cd $FLAKE'
-# alias cdf='cdd ; hx $FLAKE'
+alias cdd='chezmoi cd'
+alias cdf='cdd ; hx .'
 alias cdb='cdd ; nhhs'
 alias lg='lazygit'
 
@@ -32,11 +32,18 @@ export SDL_GAMECONTROLLERCONFIG="0300de1f436c6f636b776f726b207500,Clockwork uCon
 
 # Enable fzf if installed
 if command -v fzf >/dev/null 2>&1; then
-    source /usr/share/fzf/key-bindings.bash
-    source /usr/share/fzf/completion.bash
+	# Source fzf key bindings and completion
+	source "$HOME/.nix-profile/share/fzf/key-bindings.bash"
+	source "$HOME/.nix-profile/share/fzf/completion.bash"
+
+	# Set up fzf default options
+	export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
+	export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
+	export FZF_ALT_C_OPTS="--preview 'ls -la {}'"
 fi
 
 # Enable oh-my-posh if installed
 if command -v oh-my-posh >/dev/null 2>&1; then
-    eval "$(oh-my-posh init bash --config ~/.poshthemes/catppuccin_mocha.omp.json)"
-fi 
+	# Initialize oh-my-posh with the theme from Nix profile
+	eval "$(oh-my-posh init bash --config $HOME/.nix-profile/share/oh-my-posh/themes/catppuccin_mocha.omp.json)"
+fi
