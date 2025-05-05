@@ -1,0 +1,80 @@
+gui:
+  theme:
+    activeBorderColor:
+      - green
+      - bold
+    inactiveBorderColor:
+      - white
+    optionsTextColor:
+      - blue
+    selectedLineBgColor:
+      - blue
+    selectedRangeBgColor:
+      - blue
+    cherryPickedCommitBgColor:
+      - cyan
+    cherryPickedCommitFgColor:
+      - blue
+    unstagedChangesColor:
+      - red
+    defaultFgColor:
+      - white
+    searchingActiveBorderColor:
+      - yellow
+
+git:
+  paging:
+    colorArg: always
+    useConfig: false
+  commit:
+    signOff: false
+  merging:
+    manualCommit: false
+    args: ""
+  log:
+    order: date-order
+    showGraph: all
+  skipHookPrefix: WIP
+  autoFetch: true
+  branchLogCmd: "git log --graph --color=always --abbrev-commit --decorate --date=relative --pretty=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold white)— %an%C(reset)%C(bold yellow)%d%C(reset)' --all"
+
+update:
+  method: prompt
+  days: 7
+
+refresher:
+  refreshInterval: 10
+  fetchInterval: 60
+
+reporting: "off"
+
+confirmOnQuit: false
+
+mouseEvents: true
+
+customCommands:
+  - key: '<c-r>'
+    command: 'git reset --hard HEAD'
+    context: 'files'
+    description: 'hard reset to HEAD'
+  - key: '<c-s>'
+    command: 'git stash'
+    context: 'files'
+    description: 'stash changes'
+
+keybinding:
+  universal:
+    quit: 'q'
+    quit-alt1: '<c-c>'
+    return: '<esc>'
+    quit-without-changing-directory: 'Q'
+    toggle-panel: '<tab>'
+    next-screen-mode: '+'
+    prev-screen-mode: '_'
+    scroll-up-main: '<pgup>'
+    scroll-down-main: '<pgdn>'
+    scroll-up-main-alt1: 'k'
+    scroll-down-main-alt1: 'j'
+    scroll-up-main-alt2: '<c-u>'
+    scroll-down-main-alt2: '<c-d>'
+    execute-custom-command: ':' 

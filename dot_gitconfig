@@ -1,0 +1,35 @@
+[user]
+    name = {{ .chezmoi.name }}
+    email = {{ .chezmoi.email }}
+
+[core]
+    editor = hx
+    excludesfile = ~/.config/git/ignore
+    autocrlf = input
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = true
+
+[push]
+    default = simple
+
+[alias]
+    st = status
+    co = checkout
+    br = branch
+    ci = commit
+    unstage = reset HEAD --
+    last = log -1 HEAD
+    visual = !gitk
+
+[color]
+    ui = auto
+
+[credential]
+    helper = store
+
+[ghq]
+    root = ~/.local/src 

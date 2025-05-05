@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Generate apt package list with versions
+apt list --installed | grep -v "Listing..." | cut -d/ -f1,2 > {{ .chezmoi.sourceDir }}/packages-apt.txt
+
+# Generate nix package list with versions
+nix profile list | grep -v "Name" | awk '{print $2 " " $3}' > {{ .chezmoi.sourceDir }}/packages-nix.txt 

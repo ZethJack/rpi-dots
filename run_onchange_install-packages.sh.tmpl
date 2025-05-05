@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# This script runs whenever the package lists (packages-apt.txt or packages-nix.txt) change.
+# It handles both installation of new packages and removal of packages that are no longer in the lists.
+
+# Function to get currently installed packages
+get_installed_apt() {
+    apt list --installed | grep -v "Listing..." | cut -d/ -f1
+}
+
+get_installed_nix() {
+    nix profile list | grep -v "Name" | awk '{print $2}'
+}
+
+# Handle apt packages
+if [ -f "{{ .chezmoi.sourceDir }}/packages-apt.txt" ]; then
+    echo "Managing apt packages..."
+    
+    # Get desired packages (without versions)
+    desired_packages=$(cut -d/ -f1 "{{ .chezmoi.sourceDir }}/packages-apt.txt")
+    
+    # Get currently installed packages
+    installed_packages=$(get_installed_apt)
+    
+    # Find packages to remove
+    packages_to_remove=$(comm -23 <(echo "$installed_packages" | sort) <(echo "$desired_packages" | sort))
+    
+    # Remove packages that are no longer desired
+    if [ ! -z "$packages_to_remove" ]; then
+        echo "Removing packages that are no longer in the list..."
+        echo "$packages_to_remove" | xargs -r sudo nala remove -y
+    fi
+    
+    # Install/update desired packages
+    echo "Installing/updating desired packages..."
+    xargs -a "{{ .chezmoi.sourceDir }}/packages-apt.txt" sudo nala install -y
+fi
+
+# Handle nix packages
+if [ -f "{{ .chezmoi.sourceDir }}/packages-nix.txt" ]; then
+    echo "Managing nix packages..."
+    
+    # Get desired packages (without versions)
+    desired_packages=$(awk '{print $1}' "{{ .chezmoi.sourceDir }}/packages-nix.txt")
+    
+    # Get currently installed packages
+    installed_packages=$(get_installed_nix)
+    
+    # Find packages to remove
+    packages_to_remove=$(comm -23 <(echo "$installed_packages" | sort) <(echo "$desired_packages" | sort))
+    
+    # Remove packages that are no longer desired
+    if [ ! -z "$packages_to_remove" ]; then
+        echo "Removing packages that are no longer in the list..."
+        echo "$packages_to_remove" | while read -r package; do
+            if [ ! -z "$package" ]; then
+                nix profile remove "$package"
+            fi
+        done
+    fi
+    
+    # Install/update desired packages
+    echo "Installing/updating desired packages..."
+    while IFS= read -r line; do
+        if [ ! -z "$line" ]; then
+            package=$(echo "$line" | awk '{print $1}')
+            nix profile install "$package"
+        fi
+    done < "{{ .chezmoi.sourceDir }}/packages-nix.txt"
+fi 

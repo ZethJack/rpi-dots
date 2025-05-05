@@ -1,0 +1,85 @@
+# Basic Settings
+set reverse true
+set preview true
+set hidden true
+set drawbox true
+set icons true
+set ignorecase true
+
+# Custom Commands
+cmd open &{{
+    case $(file --mime-type -bL -- "$f") in
+        text/*|application/json)
+            lf -remote "send $id \$$EDITOR \$fx" ;;
+        image/*)
+            imv "$fx" ;;
+        audio/*)
+            mpv "$fx" ;;
+        video/*)
+            mpv --no-terminal "$f" ;;
+        application/pdf|application/epub+zip)
+            zathura "$f" ;;
+        *)
+            lf -remote "send $id \$$EDITOR \$fx" ;;
+    esac
+}}
+
+cmd drag-out %ripdrag -a -x "$fx"
+cmd editor-open $$EDITOR "$f"
+cmd edit-dir $$EDITOR .
+cmd mkdirfile ${{
+    printf "File: "
+    read DIR
+    mkdir -p $DIR
+}}
+
+# Keybindings
+map \" 
+map o 
+map d 
+map e 
+map f 
+map c mkdirfile
+map . set hidden!
+map D delete
+map p paste
+map dd cut
+map y copy
+map ` mark-load
+map \' mark-load
+map <enter> open
+map a rename
+map r reload
+map C clear
+map U unselect
+
+map do drag-out
+
+# Directory shortcuts
+map g~ cd
+map gh cd
+map g/ /
+map gd cd ~/Downloads
+map gt cd /tmp
+map gv cd ~/Videos
+map go cd ~/Documents
+map gc cd ~/.config
+map gn cd ~/.local/src/nixconf
+map gp cd ~/Projects
+map gs cd ~/.local/share
+map gm cd /run/media
+
+map ee editor-open
+map e. edit-dir
+
+map <c-d> 5j
+map <c-u> 5k
+
+# Directory-specific settings
+setlocal ~/Projects sortby time
+setlocal ~/Projects/* sortby time
+setlocal ~/Downloads/ sortby time
+
+# Preview settings
+set cleaner ~/.config/lf/clean.sh
+set previewer ctpv 
