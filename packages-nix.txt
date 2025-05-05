@@ -1,0 +1,16 @@
+# Core tools
+chezmoi
+helix
+tmux
+
+# Shell enhancements
+fzf
+oh-my-posh
+bat
+
+# Development tools
+lazygit
+
+# Media tools
+yt-dlp
+aria2

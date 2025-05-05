@@ -1,70 +1,106 @@
 #!/bin/bash
 
-# This script runs whenever the package lists (packages-apt.txt or packages-nix.txt) change.
-# It handles both installation of new packages and removal of packages that are no longer in the lists.
+# This script runs whenever the package list (packages-nix.txt) changes.
+# It handles both installation of new packages and removal of packages that are no longer in the list.
 
-# Function to get currently installed packages
-get_installed_apt() {
-    apt list --installed | grep -v "Listing..." | cut -d/ -f1
+# Default values
+DRY_RUN=false
+VERBOSE=false
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --verbose)
+            VERBOSE=true
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
+
+# Logging function
+log() {
+    local level=$1
+    shift
+    if [[ $VERBOSE == true || $level == "ERROR" ]]; then
+        echo "[$level] $*"
+    fi
 }
 
+# Function to get currently installed Nix packages
 get_installed_nix() {
-    nix profile list | grep -v "Name" | awk '{print $2}'
+    nix profile list | grep -v "nixpkgs#" | awk '{print $2}'
 }
 
-# Handle apt packages
-if [ -f "{{ .chezmoi.sourceDir }}/packages-apt.txt" ]; then
-    echo "Managing apt packages..."
+# Function to install a package
+install_package() {
+    local package=$1
     
-    # Get desired packages (without versions)
-    desired_packages=$(cut -d/ -f1 "{{ .chezmoi.sourceDir }}/packages-apt.txt")
-    
-    # Get currently installed packages
-    installed_packages=$(get_installed_apt)
-    
-    # Find packages to remove
-    packages_to_remove=$(comm -23 <(echo "$installed_packages" | sort) <(echo "$desired_packages" | sort))
-    
-    # Remove packages that are no longer desired
-    if [ ! -z "$packages_to_remove" ]; then
-        echo "Removing packages that are no longer in the list..."
-        echo "$packages_to_remove" | xargs -r sudo nala remove -y
+    if [[ $DRY_RUN == true ]]; then
+        log "INFO" "Would install $package"
+        return
     fi
     
-    # Install/update desired packages
-    echo "Installing/updating desired packages..."
-    xargs -a "{{ .chezmoi.sourceDir }}/packages-apt.txt" sudo nala install -y
-fi
+    log "INFO" "Installing $package"
+    if nix profile install "nixpkgs#${package}"; then
+        log "SUCCESS" "Successfully installed $package"
+    else
+        log "ERROR" "Failed to install $package"
+        return 1
+    fi
+}
 
-# Handle nix packages
-if [ -f "{{ .chezmoi.sourceDir }}/packages-nix.txt" ]; then
-    echo "Managing nix packages..."
+# Function to remove a package
+remove_package() {
+    local package=$1
     
-    # Get desired packages (without versions)
-    desired_packages=$(awk '{print $1}' "{{ .chezmoi.sourceDir }}/packages-nix.txt")
-    
-    # Get currently installed packages
-    installed_packages=$(get_installed_nix)
-    
-    # Find packages to remove
-    packages_to_remove=$(comm -23 <(echo "$installed_packages" | sort) <(echo "$desired_packages" | sort))
-    
-    # Remove packages that are no longer desired
-    if [ ! -z "$packages_to_remove" ]; then
-        echo "Removing packages that are no longer in the list..."
-        echo "$packages_to_remove" | while read -r package; do
-            if [ ! -z "$package" ]; then
-                nix profile remove "$package"
-            fi
-        done
+    if [[ $DRY_RUN == true ]]; then
+        log "INFO" "Would remove $package"
+        return
     fi
     
-    # Install/update desired packages
-    echo "Installing/updating desired packages..."
-    while IFS= read -r line; do
-        if [ ! -z "$line" ]; then
-            package=$(echo "$line" | awk '{print $1}')
-            nix profile install "$package"
-        fi
-    done < "{{ .chezmoi.sourceDir }}/packages-nix.txt"
-fi 
+    log "INFO" "Removing $package"
+    if nix profile remove "nixpkgs#${package}"; then
+        log "SUCCESS" "Successfully removed $package"
+    else
+        log "ERROR" "Failed to remove $package"
+        return 1
+    fi
+}
+
+# Main script
+log "INFO" "Starting package management"
+
+# Read desired packages from packages-nix.txt
+declare -A desired_packages
+while IFS= read -r line; do
+    # Skip comments and empty lines
+    [[ $line =~ ^#.*$ || -z $line ]] && continue
+    desired_packages[$line]=1
+done < packages-nix.txt
+
+# Get currently installed packages
+installed_packages=($(get_installed_nix))
+
+# Remove packages that are no longer desired
+for pkg in "${installed_packages[@]}"; do
+    if [[ -z "${desired_packages[$pkg]}" ]]; then
+        remove_package "$pkg"
+    fi
+done
+
+# Install or update desired packages
+for pkg in "${!desired_packages[@]}"; do
+    if [[ ! " ${installed_packages[@]} " =~ " ${pkg} " ]]; then
+        install_package "$pkg"
+    fi
+done
+
+log "INFO" "Package management completed" 
