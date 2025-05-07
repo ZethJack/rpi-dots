@@ -3,6 +3,8 @@
 # This script runs whenever the package list (packages-nix.txt) changes.
 # It handles both installation of new packages and removal of packages that are no longer in the list.
 
+# packages-nix.txt hash: {{ include "packages-nix.txt" | sha256sum }}
+
 # Default values
 DRY_RUN=false
 VERBOSE=false
