@@ -75,7 +75,7 @@ dotfiles/
 
 2. Initialize Chezmoi with this repository:
    ```bash
-   chezmoi init https://github.com/yourusername/dotfiles.git
+   chezmoi init https://github.com/ZethJack/rpi-dots.git
    ```
 
 3. Apply the configuration:
@@ -120,10 +120,6 @@ dotfiles/
 - Keyboard shortcuts for common actions
 - Tab management
 - Window geometry settings
-
-### Installation Scripts
-- `install-nala-packages.sh`: Installs system packages via Nala
-- `install-nix-packages.sh`: Installs Nix packages
 
 ## Maintenance
 
