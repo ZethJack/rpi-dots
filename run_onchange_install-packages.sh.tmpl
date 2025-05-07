@@ -36,23 +36,24 @@ log() {
 
 # Function to get currently installed Nix packages
 get_installed_nix() {
-    nix profile list | grep -v "nixpkgs#" | awk '{print $2}'
+    # Get all user-installed packages, excluding system packages
+    nix profile list | grep "nixpkgs#" | grep -v "paths:" | awk '{print $2}' | sed 's/nixpkgs#//'
 }
 
-# Function to install a package
+# Function to install or update a package
 install_package() {
     local package=$1
     
     if [[ $DRY_RUN == true ]]; then
-        log "INFO" "Would install $package"
+        log "INFO" "Would install/update $package"
         return
     fi
     
-    log "INFO" "Installing $package"
-    if nix profile install "nixpkgs#${package}"; then
-        log "SUCCESS" "Successfully installed $package"
+    log "INFO" "Installing/updating $package"
+    if nix profile install "nixpkgs#${package}" --impure; then
+        log "SUCCESS" "Successfully installed/updated $package"
     else
-        log "ERROR" "Failed to install $package"
+        log "ERROR" "Failed to install/update $package"
         return 1
     fi
 }
