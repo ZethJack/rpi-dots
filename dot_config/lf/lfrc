@@ -12,7 +12,7 @@ cmd open &{{
         text/*|application/json)
             lf -remote "send $id \$$EDITOR \$fx" ;;
         image/*)
-            imv "$fx" ;;
+            eom "$fx" ;;
         audio/*)
             mpv "$fx" ;;
         video/*)
