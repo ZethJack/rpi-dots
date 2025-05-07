@@ -78,13 +78,21 @@ remove_package() {
 # Main script
 log "INFO" "Starting package management"
 
+# Use chezmoi's source directory to find packages-nix.txt
+PACKAGES_FILE="{{ .chezmoi.sourceDir }}/packages-nix.txt"
+
+if [[ ! -f "$PACKAGES_FILE" ]]; then
+    log "ERROR" "Could not find packages file at $PACKAGES_FILE"
+    exit 1
+fi
+
 # Read desired packages from packages-nix.txt
 declare -A desired_packages
 while IFS= read -r line; do
     # Skip comments and empty lines
     [[ $line =~ ^#.*$ || -z $line ]] && continue
     desired_packages[$line]=1
-done < packages-nix.txt
+done < "$PACKAGES_FILE"
 
 # Get currently installed packages
 installed_packages=($(get_installed_nix))
