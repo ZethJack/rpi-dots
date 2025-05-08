@@ -38,4 +38,34 @@ else
     print_status "Nix is already installed"
 fi
 
-print_status "Bootstrap completed successfully!" 
+# Install zsh using Nix
+print_status "Installing zsh using Nix..."
+if ! nix profile install nixpkgs#zsh --impure; then
+    print_error "Failed to install zsh using Nix"
+    exit 1
+fi
+
+# Get the path to Nix-installed zsh
+NIX_ZSH_PATH="$HOME/.nix-profile/bin/zsh"
+if [ ! -f "$NIX_ZSH_PATH" ]; then
+    print_error "Could not find Nix-installed zsh at $NIX_ZSH_PATH"
+    exit 1
+fi
+
+# Add Nix zsh to /etc/shells if not present
+if ! grep -q "^$NIX_ZSH_PATH$" /etc/shells; then
+    print_status "Adding Nix zsh to /etc/shells"
+    echo "$NIX_ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
+fi
+
+# Set Nix zsh as default shell
+print_status "Setting Nix zsh as default shell..."
+if chsh -s "$NIX_ZSH_PATH"; then
+    print_status "Default shell set to Nix zsh"
+else
+    print_error "Failed to set Nix zsh as default shell"
+    exit 1
+fi
+
+print_status "Bootstrap completed successfully!"
+print_status "Please log out and log back in for the changes to take effect." 

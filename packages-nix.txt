@@ -10,6 +10,12 @@ bat
 lf
 ripdrag
 
+zsh
+zsh-syntax-highlighting
+zsh-autosuggestions
+zsh-history-substring-search
+zsh-autocomplete
+
 # Development tools
 lazygit
 
