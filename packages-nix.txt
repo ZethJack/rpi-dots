@@ -8,6 +8,7 @@ fzf
 oh-my-posh
 bat
 lf
+ripdrag
 
 # Development tools
 lazygit
