@@ -59,7 +59,8 @@ alias lg='lazygit'
 export PATH="$HOME/.local/bin:$PATH"
 export EDITOR="hx"
 export SUDO_EDITOR="hx"
-export SDL_GAMECONTROLLERCONFIG="0300de1f436c6f636b776f726b207500,Clockwork uConsole Keyboard,platform:Linux,a:b0,b:b1,x:b2,y:b3,back:b4,start:b5,leftx:a0,lefty:a1,"
+# export SDL_GAMECONTROLLERCONFIG="0300de1f436c6f636b776f726b207500,Clockwork uConsole Keyboard,platform:Linux,a:b0,b:b1,x:b2,y:b3,back:b4,start:b5,leftx:a0,lefty:a1,"
+export SDL_GAMECONTROLLERCONFIG="0300edfe000011010000000000000000,Clockwork uConsole Keyboard,platform:Linux,a:b0,b:b1,x:b2,y:b3,back:b4,start:b5,leftx:a0,lefty:a1,"
 
 # Enable fzf if installed
 if command -v fzf >/dev/null 2>&1; then
