@@ -1,0 +1,5 @@
+name: "Zeth"  # Replace with your actual name
+email: "zeth@zethjack.eu"  # Replace with your actual email
+
+# You can add other chezmoi variables here as needed
+hostname: "{{ .chezmoi.hostname }}"  # This will be automatically populated 
