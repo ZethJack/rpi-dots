@@ -23,3 +23,10 @@ lazygit
 yt-dlp
 aria2
 imv
+
+# password manager
+pass-wayland
+wofi-pass
+
+# runner
+wofi

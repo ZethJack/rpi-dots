@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 # Colors for output
 RED='\033[0;31m'
@@ -15,57 +15,99 @@ print_status() {
 
 print_error() {
     echo -e "${RED}Error:${NC} $1"
+    return 1
 }
 
 print_warning() {
     echo -e "${YELLOW}Warning:${NC} $1"
 }
 
-# Check if running as root
-if [ "$EUID" -eq 0 ]; then
-    print_error "Please do not run this script as root"
-    exit 1
-fi
+# Function to check if running as root
+check_root() {
+    if [ "$EUID" -eq 0 ]; then
+        print_error "Please do not run this script as root"
+        exit 1
+    fi
+}
 
-# Check if Nix is installed
-if ! command -v nix >/dev/null 2>&1; then
-    print_status "Installing Nix..."
-    sh <(curl -L https://nixos.org/nix/install) --daemon
-    # Source Nix environment
-    . "$HOME/.nix-profile/etc/profile.d/nix.sh"
-    print_status "Nix installed successfully"
-else
-    print_status "Nix is already installed"
-fi
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
 
-# Install zsh using Nix
-print_status "Installing zsh using Nix..."
-if ! nix profile install nixpkgs#zsh --impure; then
-    print_error "Failed to install zsh using Nix"
-    exit 1
-fi
+# Function to install Nix if not present
+install_nix() {
+    if ! command_exists nix; then
+        print_status "Installing Nix..."
+        if ! sh <(curl -L https://nixos.org/nix/install) --daemon; then
+            print_error "Failed to install Nix"
+            exit 1
+        fi
+        # Source Nix environment
+        . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+        print_status "Nix installed successfully"
+    else
+        print_status "Nix is already installed"
+    fi
+}
 
-# Get the path to Nix-installed zsh
-NIX_ZSH_PATH="$HOME/.nix-profile/bin/zsh"
-if [ ! -f "$NIX_ZSH_PATH" ]; then
-    print_error "Could not find Nix-installed zsh at $NIX_ZSH_PATH"
-    exit 1
-fi
+# Function to install zsh using Nix
+install_zsh() {
+    print_status "Installing zsh using Nix..."
+    if ! nix profile install nixpkgs#zsh --impure; then
+        print_error "Failed to install zsh using Nix"
+        exit 1
+    fi
+}
 
-# Add Nix zsh to /etc/shells if not present
-if ! grep -q "^$NIX_ZSH_PATH$" /etc/shells; then
-    print_status "Adding Nix zsh to /etc/shells"
-    echo "$NIX_ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
-fi
+# Function to get Nix zsh path
+get_nix_zsh_path() {
+    local nix_zsh_path="$HOME/.nix-profile/bin/zsh"
+    if [ ! -f "$nix_zsh_path" ]; then
+        print_error "Could not find Nix-installed zsh at $nix_zsh_path"
+        exit 1
+    fi
+    echo "$nix_zsh_path"
+}
 
-# Set Nix zsh as default shell
-print_status "Setting Nix zsh as default shell..."
-if chsh -s "$NIX_ZSH_PATH"; then
-    print_status "Default shell set to Nix zsh"
-else
-    print_error "Failed to set Nix zsh as default shell"
-    exit 1
-fi
+# Function to add shell to /etc/shells
+add_shell_to_shells() {
+    local shell_path="$1"
+    if ! grep -q "^$shell_path$" /etc/shells; then
+        print_status "Adding $shell_path to /etc/shells"
+        if ! echo "$shell_path" | sudo tee -a /etc/shells >/dev/null; then
+            print_error "Failed to add $shell_path to /etc/shells"
+            exit 1
+        fi
+    fi
+}
 
-print_status "Bootstrap completed successfully!"
-print_status "Please log out and log back in for the changes to take effect." 
+# Function to set default shell
+set_default_shell() {
+    local shell_path="$1"
+    print_status "Setting $shell_path as default shell..."
+    if ! chsh -s "$shell_path"; then
+        print_error "Failed to set $shell_path as default shell"
+        exit 1
+    fi
+    print_status "Default shell set to $shell_path"
+}
+
+# Main function
+main() {
+    check_root
+    install_nix
+    install_zsh
+    
+    local nix_zsh_path
+    nix_zsh_path=$(get_nix_zsh_path)
+    
+    add_shell_to_shells "$nix_zsh_path"
+    set_default_shell "$nix_zsh_path"
+    
+    print_status "Bootstrap completed successfully!"
+    print_status "Please log out and log back in for the changes to take effect."
+}
+
+# Run main function
+main 
