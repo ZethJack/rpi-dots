@@ -99,3 +99,6 @@ function mkcd() {
 if [ -f "$HOME/.nix-profile/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh" ]; then
     source "$HOME/.nix-profile/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh"
 fi 
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
