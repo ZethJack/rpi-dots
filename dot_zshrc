@@ -60,7 +60,9 @@ export PATH="$HOME/.local/bin:$PATH"
 export EDITOR="hx"
 export SUDO_EDITOR="hx"
 # export SDL_GAMECONTROLLERCONFIG="0300de1f436c6f636b776f726b207500,Clockwork uConsole Keyboard,platform:Linux,a:b0,b:b1,x:b2,y:b3,back:b4,start:b5,leftx:a0,lefty:a1,"
-export SDL_GAMECONTROLLERCONFIG="0300edfe000011010000000000000000,Clockwork uConsole Keyboard,platform:Linux,a:b0,b:b1,x:b2,y:b3,back:b4,start:b5,leftx:a0,lefty:a1,"
+#export SDL_GAMECONTROLLERCONFIG="0300edfe000011010000000000000000,Clockwork uConsole Keyboard,platform:Linux,a:b0,b:b1,x:b2,y:b3,back:b4,start:b5,leftx:a0,lefty:a1,"
+#export SDL_GAMECONTROLLERCONFIG="030000fdaf1e00002400000010010000785536,ClockworkPI uConsole,platform:Linux,a:b1,b:b2,x:b0,y:b3,back:b8,start:b9,"
+
 
 # Enable fzf if installed
 if command -v fzf >/dev/null 2>&1; then

@@ -1,0 +1,51 @@
+{ config, pkgs, lib, ... }:
+
+{
+  # Let Home Manager install and manage itself
+  programs.home-manager.enable = true;
+
+  # Use the same nixpkgs as the system
+  nixpkgs.config = {
+    allowUnfree = true;
+  };
+
+  # Packages to install
+  home.packages = with pkgs; [
+    # Core tools
+    chezmoi
+    helix
+    tmux
+
+    # Shell enhancements
+    fzf
+    oh-my-posh
+    bat
+    lf
+    ripdrag
+
+    # Development tools
+    lazygit
+
+    # Media tools
+    yt-dlp
+    aria2
+    imv
+
+    # Password manager
+    pass-wayland
+    wofi-pass
+
+    # Runner
+    wofi
+
+    # Office
+    calcure
+  ];
+
+  # Home Manager needs a bit of information about you and the paths it should manage
+  home.username = "{{ .chezmoi.username }}";
+  home.homeDirectory = "{{ .chezmoi.homeDir }}";
+
+  # This value determines the Home Manager release that your configuration is compatible with
+  home.stateVersion = "23.11";
+} 

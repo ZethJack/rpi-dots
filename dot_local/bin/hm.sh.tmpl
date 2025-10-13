@@ -1,0 +1,61 @@
+{{- /* chezmoi:templateFile */ -}}
+{{- /* chezmoi:executable */ -}}
+#!/usr/bin/env bash
+
+# This script is now called 'hm' for convenience
+# Usage: hm
+
+set -euo pipefail
+
+# Function to log messages
+log() {
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
+}
+
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Check if nix is installed
+if ! command_exists nix; then
+    log "ERROR: nix is not installed. Please install nix first."
+    exit 1
+fi
+
+# Check if home-manager is installed
+if ! command_exists home-manager; then
+    log "Installing home-manager..."
+    nix profile install nixpkgs#home-manager
+fi
+
+# Verify home-manager configuration directory
+if [ ! -d ~/.config/home-manager ]; then
+    log "ERROR: ~/.config/home-manager directory not found."
+    log "Please ensure your chezmoi configuration is applied."
+    exit 1
+fi
+
+# Verify flake.nix exists
+if [ ! -f ~/.config/home-manager/flake.nix ]; then
+    log "ERROR: flake.nix not found in ~/.config/home-manager"
+    log "Please ensure your chezmoi configuration is applied."
+    exit 1
+fi
+
+# Backup current packages
+log "Backing up current packages..."
+nix profile list > ~/.nix-profile-backup.txt
+
+# Remove current packages
+log "Removing current packages..."
+nix profile list | cut -d' ' -f4 | xargs -I{} nix profile remove {}
+
+# Switch to home-manager
+log "Switching to home-manager configuration..."
+cd ~/.config/home-manager
+nix flake update
+home-manager switch --flake .
+
+log "Done! Your configuration has been switched to home-manager."
+log "If you need to restore your previous packages, check ~/.nix-profile-backup.txt" 

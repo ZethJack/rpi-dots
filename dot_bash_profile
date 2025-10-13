@@ -4,6 +4,8 @@
 # include .bashrc if it exists
 [[ -f ~/.bashrc ]] && . ~/.bashrc
 
+export SDL_GAMECONTROLLERCONFIG="030000fdaf1e00002400000010010000785536,ClockworkPI uConsole,platform:Linux,a:b1,b:b2,x:b0,y:b3,back:b8,start:b9,"
+
 # Set Zsh as the default shell if it exists
 if command -v zsh >/dev/null 2>&1; then
     exec zsh

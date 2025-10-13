@@ -30,3 +30,6 @@ wofi-pass
 
 # runner
 wofi
+
+# office
+calcure
