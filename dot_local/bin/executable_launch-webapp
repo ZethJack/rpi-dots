@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <URL>"
+  exit 1
+fi
+
+# Get the default browser's .desktop file
+browser=$(xdg-settings get default-web-browser 2>/dev/null)
+
+# Map .desktop file to executable command
+case "$browser" in
+  *google-chrome* | *brave-browser* | *microsoft-edge* | *opera* | *vivaldi* | *chromium*)
+    # Chromium-based browsers support --app
+    browser_exec=$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,~/.nix-profile,/usr}/share/applications/"$browser" 2>/dev/null | head -1)
+    if [ -n "$browser_exec" ]; then
+      exec "$browser_exec" --app="$1" "${@:2}"
+    else
+      echo "Error: Could not find executable for $browser"
+      exit 1
+    fi
+    ;;
+  *)
+    # Fallback to xdg-open if browser is unknown
+    echo "Warning: Unknown browser $browser, falling back to xdg-open"
+    exec xdg-open "$1"
+    ;;
+esac

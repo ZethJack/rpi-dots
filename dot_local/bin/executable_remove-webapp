@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+# Directory where .desktop files and icons are stored
+DESKTOP_DIR="$HOME/.local/share/applications"
+ICON_DIR="$HOME/.local/share/applications/icons"
+
+# Ensure directories exist
+if [ ! -d "$DESKTOP_DIR" ]; then
+  echo "Error: $DESKTOP_DIR does not exist."
+  exit 1
+fi
+
+if [ "$#" -eq 0 ]; then
+  # Find all web apps (identified by Exec containing launch-webapp)
+  WEB_APPS=()
+  while IFS= read -r -d '' file; do
+    if grep -q '^Exec=.*launch-webapp.*' "$file"; then
+      WEB_APPS+=("$(basename "${file%.desktop}")")
+    fi
+  done < <(find "$DESKTOP_DIR" -name '*.desktop' -print0)
+
+  if ((${#WEB_APPS[@]} == 0)); then
+    echo "No web apps to remove."
+    exit 0
+  fi
+
+  # Sort and select with gum
+  IFS=$'\n' SORTED_WEB_APPS=($(sort <<<"${WEB_APPS[*]}"))
+  unset IFS
+  APP_NAMES_STRING=$(gum choose --no-limit --header "Select web app to remove..." --selected-prefix="✗ " "${SORTED_WEB_APPS[@]}")
+
+  # Convert newline-separated string to array
+  APP_NAMES=()
+  while IFS= read -r line; do
+    [[ -n "$line" ]] && APP_NAMES+=("$line")
+  done <<< "$APP_NAMES_STRING"
+else
+  # Use arguments for non-interactive mode
+  APP_NAMES=("$@")
+fi
+
+if [[ ${#APP_NAMES[@]} -eq 0 ]]; then
+  echo "No web apps selected for removal."
+  exit 0
+fi
+
+# Remove selected web apps
+for APP_NAME in "${APP_NAMES[@]}"; do
+  DESKTOP_FILE="$DESKTOP_DIR/$APP_NAME.desktop"
+  ICON_FILE="$ICON_DIR/$APP_NAME.png"
+
+  if [ -f "$DESKTOP_FILE" ]; then
+    rm -f "$DESKTOP_FILE"
+    echo "Removed $DESKTOP_FILE"
+  else
+    echo "Warning: $DESKTOP_FILE not found."
+  fi
+
+  if [ -f "$ICON_FILE" ]; then
+    rm -f "$ICON_FILE"
+    echo "Removed $ICON_FILE"
+  else
+    echo "Warning: $ICON_FILE not found."
+  fi
+done
+
+# Update desktop database
+if command -v update-desktop-database >/dev/null 2>&1; then
+  echo "Updating desktop database..."
+  update-desktop-database "$DESKTOP_DIR"
+fi
+
+echo "Removal complete."
