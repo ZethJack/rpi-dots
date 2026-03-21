@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<labwc_config>
+
+  <theme>
+    <font place="ActiveWindow">
+      <name>PibotoLt</name>
+      <size>12</size>
+      <weight>Normal</weight>
+      <slant>Normal</slant>
+    </font>
+    <font place="InactiveWindow">
+      <name>PibotoLt</name>
+      <size>12</size>
+      <weight>Normal</weight>
+      <slant>Normal</slant>
+    </font>
+    <name>PiXnoir</name>
+  </theme>
+
+  <libinput>
+    <device category="default">
+      <pointerSpeed>0.000000</pointerSpeed>
+      <leftHanded>no</leftHanded>
+    </device>
+  </libinput>
+
+  <mouse>
+    <doubleClickTime>400</doubleClickTime>
+  </mouse>
+
+  <keyboard>
+    <default />  <!-- This loads default keybinds like Alt+Tab -->
+
+    <numlock>on</numlock>
+    <repeatRate>25</repeatRate>
+    <repeatDelay>600</repeatDelay>
+
+    <keybind key="C-A-p">
+      <action name="Execute">
+        <command>wofi-pass -c</command>
+      </action>
+    </keybind>
+
+    <keybind key="W-return">
+      <action name="Execute">
+        <command>lxterminal</command>
+      </action>
+    </keybind>
+
+    <keybind key="W-q">
+      <action name="Close" />
+    </keybind>
+
+    <keybind key="W-BackSpace">
+      <action name="Execute">
+        <command>wlopm --toggle HDMI-A-1</command>
+      </action>
+    </keybind>
+
+    <keybind key="W-d">
+      <action name="Execute">
+        <command>wofi --show drun --allow-images</command>
+      </action>
+    </keybind>
+
+    <keybind key="W-v">
+      <action name="Execute">
+        <command>cliphist list | fuzzel --dmenu --width 60 --lines 12 | cliphist decode | wl-copy</command>
+      </action>
+    </keybind>
+
+    <keybind key="W-Shift-c">
+      <action name="Execute">
+        <command>cliphist list | fuzzel --dmenu --width 60 --lines 12 | cliphist delete</command>
+      </action>
+    </keybind>
+
+    <keybind key="W-Alt-c">
+      <action name="Execute">
+        <command>rm -f ~/.cache/cliphist/db &amp;&amp; notify-send "Clipboard history cleared"</command>
+      </action>
+    </keybind>
+
+  </keyboard>
+
+</labwc_config>
