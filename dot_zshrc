@@ -54,6 +54,7 @@ alias cdd='chezmoi cd'
 alias cdf='cdd ; hx .'
 alias cdb='cdd ; nhhs'
 alias lg='lazygit'
+alias tat='tmux a || tmux'
 
 # Environment variables
 export PATH="$HOME/.local/bin:$PATH"
